@@ -1,6 +1,29 @@
 <template>
   <div class="border rounded p-2">
+    <h2>{{ addressType }} Address</h2>
+
     <slot />
+
+    <div class="form-group">
+        <label for="">Name</label>
+        <input
+        type="text"
+        id="name"
+        class="form-control"
+        placeholder="Your Name"
+        v-model="address.fullName"
+        />
+    </div>
+    <div class="form-group">
+        <label for="company">Company Name</label>
+        <input
+        type="text"
+        id="company"
+        class="form-control"
+        placeholder="Company Name"
+        v-model="address.companyName"
+        />
+    </div>
     <div class="form-group">
       <label for="address1">Address</label>
       <input
@@ -42,7 +65,9 @@
         />
       </div>
     </div>
+
     <slot name="submitter" />
+    
   </div>
 </template>
 
@@ -53,6 +78,9 @@ import formatters from "@/formatters";
 
 export default {
   props: {
+    addressType: {
+        type: String
+    },
     address: {
       type: Object,
     },
