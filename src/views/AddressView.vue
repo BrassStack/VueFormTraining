@@ -11,8 +11,9 @@
         id="name"
         class="form-control"
         placeholder="Your Name"
-        v-model="address.fullName"
+        v-model="validator.fullName.$model"
         />
+        <ValidationMessage :model="validator.fullName" />
     </div>
     <div class="form-group">
         <label for="company">Company Name</label>
@@ -21,8 +22,9 @@
         id="company"
         class="form-control"
         placeholder="Company Name"
-        v-model="address.companyName"
+        v-model="validator.companyName.$model"
         />
+        <ValidationMessage :model="validator.companyName" />
     </div>
     <div class="form-group">
       <label for="address1">Address</label>
@@ -31,16 +33,17 @@
         id="address1"
         class="form-control"
         placeholder="Address 1"
-        v-model="address.address1"
+        v-model="validator.address1.$model"
         :disabled="isDisabled"
       />
+      <ValidationMessage :model="validator.address1" />
     </div>
     <div class="form-row">
       <div class="form-group col-md">
         <label for="state">State</label>
         <select
           id="state"
-          v-model="address.state"
+          v-model="validator.state.$model"
           class="form-control"
           :disabled="isDisabled"
         >
@@ -52,6 +55,7 @@
             {{ stateFormat(s) }}
           </option>
         </select>
+        <ValidationMessage :model="validator.state" />
       </div>
       <div class="form-group col-md-4">
         <label for="zip">Zip</label>
@@ -63,6 +67,7 @@
           v-model="zip"
           :disabled="isDisabled"
         />
+        <ValidationMessage :model="validator.zipcode" />
       </div>
     </div>
 
@@ -73,10 +78,14 @@
 
 <script>
 import { computed } from "vue";
+import ValidationMessage from '@/components/ValidationMessage';
 import states from "@/lookup/states";
 import formatters from "@/formatters";
+import useVuelidate from "@vuelidate/core";
+import { required, minLength } from "@vuelidate/validators"
 
 export default {
+  components: { ValidationMessage },
   props: {
     addressType: {
         type: String
@@ -102,9 +111,20 @@ export default {
       },
     });
 
+    const rules = {
+      fullName: { required, minLength: minLength(3) },
+      companyName: {},
+      address1: { required, minLength: minLength(5) },
+      state: { required },
+      zipcode: { required, minLength: minLength(4) }
+    };
+
+    const validator = useVuelidate( rules, props.address );
+
     return {
       zip,
       states,
+      validator,
       ...formatters,
     };
   },

@@ -14,7 +14,9 @@
           </AddressView>
 
           <div>
-            <pre>{{ payment }}</pre>
+            <pre>
+              {{ payment }}
+            </pre>
           </div>
         </div>
         <div class="col-md-6">
@@ -36,7 +38,7 @@
             </div>
           </AddressView>
 
-          <CreditCardView :card="validator" />
+          <CreditCardView :card="payment.creditcard" @ccValidated="(valid) => validations.cc = valid" />
         </div>
       </div>
     </form>
@@ -48,32 +50,23 @@ import { reactive, watch } from "vue";
 import AddressView from "@/views/AddressView.vue";
 import CreditCardView from "@/views/CreditCardView.vue";
 import state from "@/state";
-import { required } from "@vuelidate/validators";
 import useVuelidate from "@vuelidate/core";
-import { creditcard } from "@/validators";
 
 export default {
   components: { AddressView, CreditCardView },
   setup() {
     const payment = reactive(state);
-    const rules = {
-      name: { required },
-      number: { required, creditcard },
-      expMonth: { required },
-      expYear: { required },
-    };
-
-    const validator = useVuelidate(rules, payment.creditcard);
 
     async function onSave() {
       if ( await validator.value.$validate() ) {
         state.errorMessage.value = "We can't save yet!";
+        setTimeout(() => {
+          state.errorMessage.value = "";
+        }, 8000);
       }
-
-      setTimeout(() => {
-        state.errorMessage.value = "";
-      }, 8000);
     }
+
+    const validator = useVuelidate( {}, payment );
 
     watch(
       () => payment.billing.sameAsShipping,

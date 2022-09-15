@@ -47,11 +47,16 @@
 </template>
 
 <script>
+import { watch } from "vue";
 import months from "@/lookup/months";
-import ValidationMessage from '../components/ValidationMessage.vue';
+import ValidationMessage from '@/components/ValidationMessage.vue';
+import useVuelidate from "@vuelidate/core";
+import { required } from "@vuelidate/validators";
+import { creditcard } from "@/validators";
 
 export default {
   components: { ValidationMessage },
+  emits: ["ccValidated"],
   props: {
     card: {
       type: Object,
@@ -63,7 +68,19 @@ export default {
       (_, i) => i + new Date().getFullYear()
     );
 
-    const validator = props.card;
+    const rules = {
+      name: { required },
+      number: { required, creditcard },
+      expMonth: { required },
+      expYear: { required },
+    };
+
+    const validator = useVuelidate(rules, props.card);
+
+    watch( 
+      () => validator.$invalid,
+      () => $emit( 'ccValidated', !validator.$invalid )
+    );
 
     return { months, years, validator };
   },
