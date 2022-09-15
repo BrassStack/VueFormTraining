@@ -11,9 +11,10 @@
         id="name"
         class="form-control"
         placeholder="Your Name"
-        v-model="validator.fullName.$model"
+        v-model="address.fullName.$model"
+        :disabled="isDisabled"
         />
-        <ValidationMessage :model="validator.fullName" />
+        <ValidationMessage :model="address.fullName" />
     </div>
     <div class="form-group">
         <label for="company">Company Name</label>
@@ -22,9 +23,10 @@
         id="company"
         class="form-control"
         placeholder="Company Name"
-        v-model="validator.companyName.$model"
+        v-model="address.companyName.$model"
+        :disabled="isDisabled"
         />
-        <ValidationMessage :model="validator.companyName" />
+        <ValidationMessage :model="address.companyName" />
     </div>
     <div class="form-group">
       <label for="address1">Address</label>
@@ -33,17 +35,17 @@
         id="address1"
         class="form-control"
         placeholder="Address 1"
-        v-model="validator.address1.$model"
+        v-model="address.address1.$model"
         :disabled="isDisabled"
       />
-      <ValidationMessage :model="validator.address1" />
+      <ValidationMessage :model="address.address1" />
     </div>
     <div class="form-row">
       <div class="form-group col-md">
         <label for="state">State</label>
         <select
           id="state"
-          v-model="validator.state.$model"
+          v-model="address.state.$model"
           class="form-control"
           :disabled="isDisabled"
         >
@@ -55,7 +57,7 @@
             {{ stateFormat(s) }}
           </option>
         </select>
-        <ValidationMessage :model="validator.state" />
+        <ValidationMessage :model="address.state" />
       </div>
       <div class="form-group col-md-4">
         <label for="zip">Zip</label>
@@ -67,7 +69,7 @@
           v-model="zip"
           :disabled="isDisabled"
         />
-        <ValidationMessage :model="validator.zipcode" />
+        <ValidationMessage :model="address.zipcode" />
       </div>
     </div>
 
@@ -81,8 +83,6 @@ import { computed } from "vue";
 import ValidationMessage from '@/components/ValidationMessage';
 import states from "@/lookup/states";
 import formatters from "@/formatters";
-import useVuelidate from "@vuelidate/core";
-import { required, minLength } from "@vuelidate/validators"
 
 export default {
   components: { ValidationMessage },
@@ -99,32 +99,21 @@ export default {
   },
   setup(props) {
     const zip = computed({
-      get: () => props.address.zipcode,
+      get: () => props.address.zipcode.$model,
       set: (val) => {
         if (val && typeof val === "string") {
           if (val.length <= 5 || val.indexOf("-") > -1) {
-            props.address.zipcode = val;
+            props.address.zipcode.$model = val;
           } else {
-            props.address.zipcode = `${val.substring(0, 5)}-${val.substring(5, 4)}`;
+            props.address.zipcode.$model = `${val.substring(0, 5)}-${val.substring(5, 4)}`;
           }
         }
       },
     });
 
-    const rules = {
-      fullName: { required, minLength: minLength(3) },
-      companyName: {},
-      address1: { required, minLength: minLength(5) },
-      state: { required },
-      zipcode: { required, minLength: minLength(4) }
-    };
-
-    const validator = useVuelidate( rules, props.address );
-
     return {
       zip,
       states,
-      validator,
       ...formatters,
     };
   },

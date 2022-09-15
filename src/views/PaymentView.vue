@@ -5,10 +5,11 @@
     <form novalidate @submit.prevent="onSave">
       <div class="row">
         <div class="col-md-6">
-          <AddressView :address="payment.shipping" addressType="Shipping">
+          <AddressView :address="validator.shipping" addressType="Shipping">
             <template #submitter>
               <div class="form-group">
-                <input type="submit" value="Next" class="btn btn-success" :disabled="validator.$invalid" />
+                <!-- <input type="submit" value="Next" class="btn btn-success" :disabled="validator.$invalid" /> -->
+                <input type="submit" value="Next" class="btn btn-success" />
               </div>
             </template>
           </AddressView>
@@ -21,8 +22,8 @@
         </div>
         <div class="col-md-6">
           <AddressView
-            :address="payment.billing"
-            :isDisabled="payment.billing.sameAsShipping"
+            :address="validator.billing"
+            :isDisabled="payment.sameAsShipping"
             addressType="Billing"
           >
             <div class="form-check">
@@ -30,7 +31,7 @@
                 type="checkbox"
                 id="sameAsShipping"
                 class="form-check-input"
-                v-model="payment.billing.sameAsShipping"
+                v-model="payment.sameAsShipping"
               />
               <label for="sameAsShipping" class="form-check-label">
                 Same As Shipping?
@@ -38,12 +39,12 @@
             </div>
           </AddressView>
 
-          <CreditCardView :card="payment.creditcard" @ccValidated="(valid) => validations.cc = valid" />
+          <CreditCardView :card="validator.creditcard" />
         </div>
       </div>
     </form>
     <div>
-      <pre>{{ validator}}</pre>
+      <pre>{{ validator }}</pre>
     </div>
 
   </div>
@@ -54,7 +55,6 @@ import { reactive, watch } from "vue";
 import AddressView from "@/views/AddressView.vue";
 import CreditCardView from "@/views/CreditCardView.vue";
 import state from "@/state";
-import useVuelidate from "@vuelidate/core";
 
 export default {
   components: { AddressView, CreditCardView },
@@ -70,13 +70,13 @@ export default {
       }
     }
 
-    const validator = useVuelidate( {}, payment );
+    const validator = state.getValidator();
 
     watch(
-      () => payment.billing.sameAsShipping,
+      [payment],
       () => {
-        if (payment.billing.sameAsShipping) {
-          payment.copyToBilling();
+        if ( payment.billing && payment.sameAsShipping ) {
+          payment.billing.setFrom(payment.shipping);
         }
       }
     );

@@ -1,3 +1,4 @@
+import useVuelidate from "@vuelidate/core";
 import { ref, reactive } from "vue";
 import AddressModel from "../models/AddressModel";
 import BillingAddressModel from "../models/BillingAddressModel";
@@ -10,13 +11,16 @@ export default {
     billing: b,
     shipping: s,
     creditcard: c,
+    sameAsShipping: ref( false ),
     errorMessage: ref( "" ),
-    copyToBilling: () => {
-        b.fullName    = s.fullName;
-        b.address1    = s.address1;
-        b.state       = s.state;
-        b.companyName = s.companyName;
-        b.zipcode = s.zipcode;
-        c.name = s.fullName;
+
+    getValidator() {
+        const rules = {
+            billing: this.billing.rules,
+            shipping: this.shipping.rules,
+            creditcard: this.creditcard.rules
+        };
+
+        return useVuelidate( rules, this );
     }
 }
