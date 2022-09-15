@@ -41,9 +41,6 @@
       </div>
     </div>
   </div>
-  <div>
-    <pre>{{ validator}}</pre>
-  </div>
 </template>
 
 <script>

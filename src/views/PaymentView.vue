@@ -42,6 +42,10 @@
         </div>
       </div>
     </form>
+    <div>
+      <pre>{{ validator}}</pre>
+    </div>
+
   </div>
 </template>
 
